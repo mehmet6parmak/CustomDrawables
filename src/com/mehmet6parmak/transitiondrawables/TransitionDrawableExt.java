@@ -6,12 +6,12 @@ import android.graphics.drawable.LayerDrawable;
 import android.os.SystemClock;
 import android.util.Log;
 
-public class RepeatableTransitionDrawable extends LayerDrawable {
-
+public class TransitionDrawableExt extends LayerDrawable {
 	private static final String TAG = "RepeatableTransitionDrawable";
 
-	public RepeatableTransitionDrawable(Drawable[] layers) {
+	public TransitionDrawableExt(Drawable[] layers) {
 		super(layers);
+		mDrawableCount = layers.length;
 	}
 
 	/**
@@ -42,9 +42,9 @@ public class RepeatableTransitionDrawable extends LayerDrawable {
 	private int mOriginalDuration;
 	private int mAlpha = 0;
 	private boolean mCrossFade;
-
-	private int currentRepeatedCount = 0;
-	private int repeatCount = 1;
+	private int fromIndex = 0;
+	private int toIndex = 1;
+	private int mDrawableCount = 0;
 
 	/**
 	 * Begin the second layer on top of the first layer.
@@ -62,7 +62,6 @@ public class RepeatableTransitionDrawable extends LayerDrawable {
 		mDuration = mOriginalDuration = durationMillis;
 		mReverse = false;
 		mTransitionState = TRANSITION_STARTING;
-		currentRepeatedCount = 0;
 		invalidateSelf();
 	}
 
@@ -71,9 +70,10 @@ public class RepeatableTransitionDrawable extends LayerDrawable {
 	 */
 	public void resetTransition() {
 		Log.d(TAG, "resetTransition");
+		fromIndex = 0;
+		toIndex = 1;
 		mAlpha = 0;
 		mTransitionState = TRANSITION_NONE;
-		currentRepeatedCount = 0;
 		invalidateSelf();
 	}
 
@@ -89,12 +89,18 @@ public class RepeatableTransitionDrawable extends LayerDrawable {
 		if (time - mStartTimeMillis >= mDuration) {
 			Log.d(TAG, "Animation is over, reversing");
 			if (mTo == 0) {
+				int temp = toIndex;
+				toIndex = fromIndex;
+				fromIndex = temp;
 				mFrom = 0;
 				mTo = 255;
 				mAlpha = 0;
 				mReverse = false;
 			} else {
 				mFrom = 255;
+				int temp = toIndex;
+				toIndex = fromIndex;
+				fromIndex = temp;
 				mTo = 0;
 				mAlpha = 255;
 				mReverse = true;
@@ -142,28 +148,34 @@ public class RepeatableTransitionDrawable extends LayerDrawable {
 			// the setAlpha() calls below trigger invalidation and redraw. If we're done, just draw
 			// the appropriate drawable[s] and return
 			if (!crossFade || alpha == 0) {
-				getDrawable(0).draw(canvas);
+				getDrawable(fromIndex).draw(canvas);
 			}
 			if (alpha == 0xFF) {
-				getDrawable(1).draw(canvas);
+				getDrawable(toIndex).draw(canvas);
 			}
 
 			if (mTransitionState == TRANSITION_RUNNING) {
-				currentRepeatedCount++;
-				Log.d(TAG, "currentRepeatedCount: " + currentRepeatedCount + ", repeatCount: " + repeatCount + ", mTransitionState: " + mTransitionState);
-				if (currentRepeatedCount < repeatCount) {
+				if (toIndex != 0 && (toIndex != mDrawableCount - 1)) {
+					if (mReverse) {
+						toIndex--;
+						fromIndex--;
+					} else {
+						toIndex++;
+						fromIndex++;
+					}
 					mTransitionState = TRANSITION_NONE;
-					reverseTransition(mDuration);
-				} else {
-					currentRepeatedCount = 0;
-					mTransitionState = TRANSITION_NONE;
+
+					if (!mReverse)
+						startTransition(mDuration);
+					else
+						reverseTransition(mDuration);
 				}
 			}
 			return;
 		}
 
 		Drawable d;
-		d = getDrawable(0);
+		d = getDrawable(fromIndex);
 		if (crossFade) {
 			d.setAlpha(255 - alpha);
 		}
@@ -173,7 +185,7 @@ public class RepeatableTransitionDrawable extends LayerDrawable {
 		}
 
 		if (alpha > 0) {
-			d = getDrawable(1);
+			d = getDrawable(toIndex);
 			d.setAlpha(alpha);
 			d.draw(canvas);
 			d.setAlpha(0xFF);
@@ -202,13 +214,4 @@ public class RepeatableTransitionDrawable extends LayerDrawable {
 	public boolean isCrossFadeEnabled() {
 		return mCrossFade;
 	}
-
-	public int getRepeatCount() {
-		return repeatCount;
-	}
-
-	public void setRepeatCount(int repeatCount) {
-		this.repeatCount = repeatCount;
-	}
-
 }

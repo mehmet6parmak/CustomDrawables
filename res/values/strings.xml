@@ -12,5 +12,6 @@
     <string name="reset_transition">Reset Transition</string>
     <string name="txt_layout_information">Some layout with parent having transition drawable as its background</string>
     <string name="hint_duration">Duration in miliseconds</string>
+    <string name="reverse">Reverse Transition</string>
 
 </resources>
