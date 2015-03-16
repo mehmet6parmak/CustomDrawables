@@ -1,5 +1,6 @@
 package com.mehmet6parmak.transitiondrawables;
 
+import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -24,9 +25,10 @@ public class TransitionDrawableExtFragment extends Fragment implements OnClickLi
 
 		edtDuration = (EditText) view.findViewById(R.id.edt_duration);
 		layoutContainer = (ViewGroup) view.findViewById(R.id.layout_main);
-		Drawable[] drawables = new Drawable[] { getResources().getDrawable(R.drawable.wallpaper1), getResources().getDrawable(R.drawable.wallpaper2),
-				getResources().getDrawable(R.drawable.wallpaper3), getResources().getDrawable(R.drawable.wallpaper4), getResources().getDrawable(R.drawable.wallpaper5),
-				getResources().getDrawable(R.drawable.wallpaper6), getResources().getDrawable(R.drawable.wallpaper7) };
+		Resources res = getResources();
+		Drawable[] drawables = new Drawable[] { res.getDrawable(R.drawable.wallpaper1), res.getDrawable(R.drawable.wallpaper2),
+				res.getDrawable(R.drawable.wallpaper3), res.getDrawable(R.drawable.wallpaper4), res.getDrawable(R.drawable.wallpaper5),
+				res.getDrawable(R.drawable.wallpaper6), res.getDrawable(R.drawable.wallpaper7) };
 		TransitionDrawableExt drawable = new TransitionDrawableExt(drawables);
 
 		layoutContainer.setBackground(drawable);
@@ -38,7 +40,6 @@ public class TransitionDrawableExtFragment extends Fragment implements OnClickLi
 	public void onClick(View v) {
 		if (v.getId() == R.id.btn_start) {
 			int duration = Integer.valueOf(edtDuration.getText().toString());
-
 			TransitionDrawableExt drawable = (TransitionDrawableExt) layoutContainer.getBackground();
 			drawable.startTransition(duration);
 		} else if (v.getId() == R.id.btn_reset) {

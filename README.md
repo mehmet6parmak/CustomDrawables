@@ -21,4 +21,13 @@ Starting Transition:
 	drawable.setRepeatCount(repeatCount);
 	drawable.startTransition(duration);
 
-****
+### **TransitionDrawableExt** ###
+Normally `TransitionDrawable` supports only two `Drawables` and makes a smooth transition between these two. If you want to use more than two images, `TransitionDrawableExt` may help you. Just pass the array of drawables to the constructor of `TransitionDrawableExt` and use methods `startTransition, reverseTransition` to see it how smoothly moves between all the drawables. Use `resetTransition` method to reset its state to initial drawable.
+
+	layoutContainer = (ViewGroup) view.findViewById(R.id.layout_main);
+	Resources res = getResources();
+	Drawable[] drawables = new Drawable[] { res.getDrawable(R.drawable.wallpaper1), res.getDrawable(R.drawable.wallpaper2),
+				res.getDrawable(R.drawable.wallpaper3), res.getDrawable(R.drawable.wallpaper4), res.getDrawable(R.drawable.wallpaper5),
+				res.getDrawable(R.drawable.wallpaper6), res.getDrawable(R.drawable.wallpaper7) };
+	TransitionDrawableExt drawable = new TransitionDrawableExt(drawables);
+	layoutContainer.setBackground(drawable);
