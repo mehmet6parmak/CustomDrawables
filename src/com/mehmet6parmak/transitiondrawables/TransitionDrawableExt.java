@@ -7,7 +7,7 @@ import android.os.SystemClock;
 import android.util.Log;
 
 public class TransitionDrawableExt extends LayerDrawable {
-	private static final String TAG = "RepeatableTransitionDrawable";
+	private static final String TAG = "TransitionDrawableExt";
 
 	public TransitionDrawableExt(Drawable[] layers) {
 		super(layers);
@@ -88,35 +88,48 @@ public class TransitionDrawableExt extends LayerDrawable {
 		// Animation is over
 		if (time - mStartTimeMillis >= mDuration) {
 			Log.d(TAG, "Animation is over, reversing");
-			if (mTo == 0) {
-				int temp = toIndex;
-				toIndex = fromIndex;
-				fromIndex = temp;
+			if (mTo == 0) {  //forward
+				Log.d(TAG, "mReverse: false");
 				mFrom = 0;
 				mTo = 255;
 				mAlpha = 0;
 				mReverse = false;
-			} else {
+				
+				int smaller = fromIndex > toIndex ? toIndex : fromIndex;
+				int bigger = fromIndex > toIndex ? fromIndex: toIndex;
+				
+				fromIndex = smaller;
+				toIndex = bigger;
+			} else { //backward
+				Log.d(TAG, "mReverse: true");
 				mFrom = 255;
-				int temp = toIndex;
-				toIndex = fromIndex;
-				fromIndex = temp;
 				mTo = 0;
 				mAlpha = 255;
 				mReverse = true;
+				
+				int smaller = fromIndex > toIndex ? toIndex : fromIndex;
+				int bigger = fromIndex > toIndex ? fromIndex: toIndex;
+				
+				fromIndex = smaller;
+				toIndex = bigger;
 			}
 			mDuration = mOriginalDuration = duration;
 			mTransitionState = TRANSITION_STARTING;
 			invalidateSelf();
 			return;
 		}
+		/*
 		Log.d(TAG, "Animation is not over yet, changing animation direction. Time elapsed :  " + (time - mStartTimeMillis));
 
 		mReverse = !mReverse;
+		int temp = toIndex;
+		toIndex = fromIndex;
+		fromIndex = temp;
 		mFrom = mAlpha;
 		mTo = mReverse ? 0 : 255;
 		mDuration = (int) (mReverse ? time - mStartTimeMillis : mOriginalDuration - (time - mStartTimeMillis));
 		mTransitionState = TRANSITION_STARTING;
+		*/
 	}
 
 	@Override
@@ -155,7 +168,8 @@ public class TransitionDrawableExt extends LayerDrawable {
 			}
 
 			if (mTransitionState == TRANSITION_RUNNING) {
-				if (toIndex != 0 && (toIndex != mDrawableCount - 1)) {
+				if ((mReverse &&  fromIndex != 0) || (!mReverse && (toIndex != mDrawableCount - 1))) {
+					Log.d(TAG, "toIndex: " + toIndex + ", fromIndex: " + fromIndex + ", mReverse: " + mReverse);
 					if (mReverse) {
 						toIndex--;
 						fromIndex--;
@@ -167,8 +181,13 @@ public class TransitionDrawableExt extends LayerDrawable {
 
 					if (!mReverse)
 						startTransition(mDuration);
-					else
+					else {
+						mTo = 255;
+						mFrom = 0;
 						reverseTransition(mDuration);
+					}
+				} else {
+					mTransitionState = TRANSITION_NONE;
 				}
 			}
 			return;
