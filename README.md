@@ -1,7 +1,9 @@
-A small project demonstrating two custom TransitionDrawable implementations. 
+A small project demonstrating some `TransitionDrawable` implementations. 
 
 #### **RepeatableTransitionDrawable** ####
-Supports repeating the transition between two drawables supplied tp its constructor. 
+Normally `TransitionDrawable` does not support repeating the transition. It just makes the transition once and stops there. If you would like to use TransitionDrawable to take attention of the user with a repeating transition you need the implement the repeating logic by yourself. `RepeatableTransitionDrawable` supports repeating the transition between two drawables supplied to its constructor. 
+
+**Note:** One downsides of custom `Drawable` implementations is that you cannot use them via xml. 
 
 Initialization:
 
